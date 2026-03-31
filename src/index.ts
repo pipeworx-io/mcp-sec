@@ -1,14 +1,3 @@
-/**
- * SEC MCP — SEC EDGAR public APIs (free, no auth)
- *
- * Tools:
- * - search_companies: full-text search for companies by name or ticker, returns CIK numbers
- * - get_company_filings: recent SEC filings for a company by CIK
- * - get_company_facts: XBRL financial facts (revenue, assets, etc.) for a company by CIK
- *
- * Note: SEC requires a descriptive User-Agent header per their guidelines.
- */
-
 interface McpToolDefinition {
   name: string;
   description: string;
@@ -23,6 +12,18 @@ interface McpToolExport {
   tools: McpToolDefinition[];
   callTool: (name: string, args: Record<string, unknown>) => Promise<unknown>;
 }
+
+/**
+ * SEC MCP — SEC EDGAR public APIs (free, no auth)
+ *
+ * Tools:
+ * - search_companies: full-text search for companies by name or ticker, returns CIK numbers
+ * - get_company_filings: recent SEC filings for a company by CIK
+ * - get_company_facts: XBRL financial facts (revenue, assets, etc.) for a company by CIK
+ *
+ * Note: SEC requires a descriptive User-Agent header per their guidelines.
+ */
+
 
 const EFTS_BASE = 'https://efts.sec.gov/LATEST';
 const DATA_BASE = 'https://data.sec.gov';

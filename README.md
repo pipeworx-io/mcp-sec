@@ -1,14 +1,13 @@
-# @pipeworx/mcp-sec
+# mcp-sec
 
-MCP server for SEC filings — search company filings and disclosures via EDGAR.
+SEC MCP — SEC EDGAR public APIs (free, no auth)
+
+Part of the [Pipeworx](https://pipeworx.io) open MCP gateway.
 
 ## Tools
 
 | Tool | Description |
 |------|-------------|
-| `search_companies` | Search SEC EDGAR for companies by name or ticker symbol |
-| `get_company_filings` | Get recent SEC filings for a company by CIK number |
-| `get_company_facts` | Get XBRL financial facts (revenue, assets, etc.) for a company by CIK |
 
 ## Quick Start
 
@@ -24,7 +23,7 @@ Add to your MCP client config:
 }
 ```
 
-## CLI Usage
+Or use the CLI:
 
 ```bash
 npx pipeworx use sec
