@@ -1,16 +1,32 @@
-# mcp-sec
+# @pipeworx/sec
 
-SEC MCP — SEC EDGAR public APIs (free, no auth)
+SEC EDGAR company lookup, filing lists, and XBRL financial facts for US public companies — keyless, straight from the SEC's own APIs.
 
-Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1476+ live data sources.
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1679+ live data sources.
 
 ## Tools
 
-| Tool | Description |
-|------|-------------|
-| `search_companies` | Search SEC EDGAR for companies by name or ticker symbol. Returns matching company names and their CIK numbers, which are needed for other SEC tools. |
-| `get_company_filings` | Get recent SEC filings for a company by CIK number, ticker, or company name. Returns filing dates, form types, and accession numbers. Optionally filter by form type (e.g., "10-K", "10-Q", "8-K"). |
-| `get_company_facts` | Get XBRL financial facts for a company by CIK number, ticker, or company name. Returns structured financial data including revenue, net income, total assets, and other reported metrics over time. |
+- `search_companies(query)` — full-text company search over EDGAR; returns matching entities with CIKs.
+- `get_company_filings(cik, form_type?)` — recent filings (10-K, 10-Q, 8-K, …) for a company by CIK, ticker, or name.
+- `get_company_facts(cik)` — annual financial snapshot from XBRL companyfacts. `latest_annual` gives revenue, net income, operating income, gross profit, assets, liabilities, equity, cash, EPS and shares for the most recent fiscal year, each resolved to whichever us-gaap concept the filer currently reports under. `key_financials` has the per-concept detail, current concepts first; concepts the filer has retired are kept (a historical series still needs them) but flagged `stale: true` with a `stale_note` naming the replacement.
+
+Not-found is a message, not a status code: a CIK EDGAR has never issued says so and points at `edgar_ticker_to_cik`; a CIK that exists but files no XBRL (funds, trusts, individuals) is named and pointed at `get_company_filings`; a ticker or name that resolves to nothing says what a valid one looks like. EDGAR covers US-registered filers only — foreign listings (`603986.SS`, `NESN`) are absent unless the company also files in the US.
+
+## Auth
+
+Keyless. The SEC requires a descriptive `User-Agent` on every request; the pack sends one.
+
+## Data sources
+
+- <https://efts.sec.gov/LATEST/search-index> — full-text company search.
+- <https://data.sec.gov/submissions/CIK##########.json> — filing history.
+- <https://data.sec.gov/api/xbrl/companyfacts/CIK##########.json> — XBRL facts.
+
+Three traps in companyfacts, all handled in `shared/src/xbrl.ts` (fleet #594, 2026-08-28):
+
+- **`fy` is the fiscal year of the FILING, not the period.** A 10-K carries prior years as comparatives, all stamped with the filing's `fy`. Amazon's FY2020 net income shows `fy=2022` because the FY2022 10-K restated it. The pack derives `year` from `period_end` and never sorts by `fy`.
+- **`frame` sits on the LAST-FILED fact for a period.** Since proxies (DEF 14A) started carrying XBRL, a filer's recent annual frames can all live on the proxy, so "10-K with a frame" silently stops years early. The pack ignores `frame` and picks the latest `period_end` among annual-report forms, tie-broken by latest `filed` (a restated figure wins).
+- **Retired concepts look current per-concept.** Microsoft's `Revenues` stops at FY2010 (ASC 606 moved it to `RevenueFromContractWithCustomerExcludingAssessedTax`). Every figure carries its fiscal year, stale concepts are flagged and sorted last, and `latest_annual` always leads with the concept the filer uses now.
 
 ## Quick Start
 
@@ -56,9 +72,45 @@ directly, instead of just this one's:
 }
 ```
 
-Both URLs reach the same gateway and the same 1476+ data sources. The
+Both URLs reach the same gateway and the same 1679+ data sources. The
 only difference is which pack's tools are listed **directly**; `ask_pipeworx`
 reaches all of them from either one.
+
+## No MCP client? Call it over HTTP
+
+```bash
+curl -X POST https://gateway.pipeworx.io/v1/tools/sec_search_companies \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"Apple"}'
+```
+
+No account needed for the first calls. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/sec_search_companies`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
+
+## Standalone (no gateway account)
+
+This package also runs as a local stdio MCP server — no Pipeworx account, no
+gateway round-trip:
+
+```json
+{
+  "mcpServers": {
+    "sec": {
+      "command": "npx",
+      "args": ["-y", "@pipeworx/mcp-sec"]
+    }
+  }
+}
+```
+
+Or run it directly to confirm it starts:
+
+```bash
+npx -y @pipeworx/mcp-sec
+```
+
+It speaks MCP over stdin/stdout and answers `initialize`/`tools/list`/`tools/call`
+for **only** this pack's tools — none of the shared meta-tools the gateway
+connection above adds. Same source, same tools, no ask_pipeworx routing.
 
 ## Using with ask_pipeworx
 
@@ -79,13 +131,3 @@ The gateway picks the right tool and fills the arguments automatically.
 ## License
 
 MIT
-
-## No MCP client? Call it over HTTP
-
-```bash
-curl -X POST https://gateway.pipeworx.io/v1/tools/sec_search_companies \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"Apple"}'
-```
-
-No account needed for the first calls. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/sec_search_companies`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
