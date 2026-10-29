@@ -1,12 +1,20 @@
 {
   "name": "@pipeworx/mcp-sec",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "SEC MCP — SEC EDGAR public APIs (free, no auth)",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./tools.json": "./tools.json",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "mcp-sec": "bin/cli.js"
+  },
+  "files": ["bin/", "lib/", "tools.json", "server.json"],
+  "engines": {
+    "node": ">=18"
   },
   "keywords": ["mcp", "mcp-server", "model-context-protocol", "pipeworx", "sec"],
   "license": "MIT",
@@ -14,19 +22,12 @@
     "type": "git",
     "url": "git+https://github.com/pipeworx-io/mcp-sec.git"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "tsx": "^4.19.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3",
-    "@cloudflare/workers-types": "^4.20260405.1"
-  },
+  "mcpName": "io.github.pipeworx-io/sec",
   "pipeworx": {
-    "sourceHash": "v1-834fa51c3b8af3458bc1ae5ef139cb8b56ad17aecd186dd33415614cf1529e27",
-    "sourceCommit": "8dbe088fb6f9d2c88f934173742329b4e20a67d6"
+    "mode": "gateway",
+    "slug": "sec",
+    "gatewaySlug": "sec",
+    "sourceHash": "v1-8ab32e97cf601f7ab76face59ed2d6240a0fd218769f51636fe75767fdc4e203",
+    "sourceCommit": "6bae4cfa7b6a73bbe014dc8820a19c80c842b21e"
   }
 }
