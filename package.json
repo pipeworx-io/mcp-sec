@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-sec",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "SEC MCP — SEC EDGAR public APIs (free, no auth)",
   "type": "module",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
     "mode": "gateway",
     "slug": "sec",
     "gatewaySlug": "sec",
-    "sourceHash": "v1-8ab32e97cf601f7ab76face59ed2d6240a0fd218769f51636fe75767fdc4e203",
-    "sourceCommit": "6bae4cfa7b6a73bbe014dc8820a19c80c842b21e"
+    "sourceHash": "v1-c20f3545660aa63d1b8c629e9bc3c58da56bf6690c4e7bdd5808fb8287dab230",
+    "sourceCommit": "8fc802aa5e23be625ce08d97178f5676c7bc93f3"
   }
 }
